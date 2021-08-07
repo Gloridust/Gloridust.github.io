@@ -61,6 +61,7 @@ textarea {
 
 
 /* ================ reset 样式 end  ================ */
+
 main {
     padding-top: 10px;
     min-height: 100vh;
@@ -88,8 +89,8 @@ main {
 
 .logo-left {
     position: relative;
-    width: 125px;
-    height: 121px;
+    width: 140px;
+    height: 140px;
     cursor: pointer;
 }
 
