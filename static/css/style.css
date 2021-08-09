@@ -206,9 +206,9 @@ li.google {
     background-image: url("./img/scgoogle.png");
 }
 
-.search-logo.google,
-li.google {
-    background-image: url("./img/scgoogle.png");
+.search-logo.duckduckgo,
+li.duckduckgo {
+    background-image: url("./img/scduckduckgo.png");
 }
 
 .search-methods .search-item:hover {
