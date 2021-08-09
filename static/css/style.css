@@ -68,7 +68,7 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    rgba(0, 0, 0, 0.35)
+    background: rgba(0, 0, 0, 0.35)
 }
 
 .footer {
