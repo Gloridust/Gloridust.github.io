@@ -1,62 +1,63 @@
-(function () {
-    
+(function() {
+
     var codeGenerator = (typeof eval("(function () {})") == "function") ?
-        function (code) { return code; } :
-        function (code) { return "false || " + code; };
-        
+        function(code) { return code; } :
+        function(code) { return "false || " + code; };
+
     // support string type only.
     var stringify = (typeof JSON !== "undefined" && JSON.stringify) ?
-        function (s) { return JSON.stringify(s); } :
-        (function () {
+        function(s) { return JSON.stringify(s); } :
+        (function() {
             // Implementation comes from JSON2 (http://www.json.org/js.html)
-        
+
             var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
-            
-            var meta = {    // table of character substitutions
+
+            var meta = { // table of character substitutions
                 '\b': '\\b',
                 '\t': '\\t',
                 '\n': '\\n',
                 '\f': '\\f',
                 '\r': '\\r',
-                '"' : '\\"',
+                '"': '\\"',
                 '\\': '\\\\'
             }
-            
-            return function (s) {
+
+            return function(s) {
                 // If the string contains no control characters, no quote characters, and no
                 // backslash characters, then we can safely slap some quotes around it.
                 // Otherwise we must also replace the offending characters with safe escape
                 // sequences.
 
                 escapable.lastIndex = 0;
-                return escapable.test(s) ? '"' + s.replace(escapable, function (a) {
+                return escapable.test(s) ? '"' + s.replace(escapable, function(a) {
                     var c = meta[a];
                     return typeof c === 's' ? c :
                         '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
                 }) + '"' : '"' + s + '"';
             };
         })();
-    
+
     // seed defined in global
     if (typeof __jscex__tempVarSeed === "undefined") {
         __jscex__tempVarSeed = 0;
     }
 
-    var init = function (root) {
-    
+    var init = function(root) {
+
         if (root.modules["jit"]) {
             return;
         }
-    
+
         function JscexTreeGenerator(binder) {
             this._binder = binder;
             this._root = null;
         }
         JscexTreeGenerator.prototype = {
 
-            generate: function (ast) {
+            generate: function(ast) {
 
-                var params = ast[2], statements = ast[3];
+                var params = ast[2],
+                    statements = ast[3];
 
                 this._root = { type: "delay", stmts: [] };
 
@@ -65,7 +66,7 @@
                 return this._root;
             },
 
-            _getBindInfo: function (stmt) {
+            _getBindInfo: function(stmt) {
 
                 var type = stmt[0];
                 if (type == "stat") {
@@ -106,7 +107,7 @@
                                     expression: expr[2][0],
                                     argName: name,
                                     assignee: null
-                                };                            
+                                };
                             }
                         }
                     }
@@ -127,7 +128,7 @@
                 return null;
             },
 
-            _visitStatements: function (statements, stmts, index) {
+            _visitStatements: function(statements, stmts, index) {
                 if (arguments.length <= 2) index = 0;
 
                 if (index >= statements.length) {
@@ -153,8 +154,8 @@
 
                         stmts.push({ type: type, stmt: currStmt });
 
-                    } else if (type == "if" || type == "try" || type == "for" || type == "do"
-                               || type == "while" || type == "switch" || type == "for-in") {
+                    } else if (type == "if" || type == "try" || type == "for" || type == "do" ||
+                        type == "while" || type == "switch" || type == "for-in") {
 
                         var newStmt = this._visit(currStmt);
 
@@ -189,7 +190,7 @@
                 return this;
             },
 
-            _visit: function (ast) {
+            _visit: function(ast) {
 
                 var type = ast[0];
 
@@ -206,7 +207,7 @@
                 }
             },
 
-            _visitBody: function (ast, stmts) {
+            _visitBody: function(ast, stmts) {
                 if (ast[0] == "block") {
                     this._visitStatements(ast[1], stmts);
                 } else {
@@ -214,7 +215,7 @@
                 }
             },
 
-            _noBinding: function (stmts) {
+            _noBinding: function(stmts) {
                 switch (stmts[stmts.length - 1].type) {
                     case "normal":
                     case "return":
@@ -227,7 +228,7 @@
                 return false;
             },
 
-            _collectCaseStatements: function (cases, index) {
+            _collectCaseStatements: function(cases, index) {
                 var res = [];
 
                 for (var i = index; i < cases.length; i++) {
@@ -246,7 +247,7 @@
 
             _visitors: {
 
-                "for": function (ast) {
+                "for": function(ast) {
 
                     var bodyStmts = [];
                     var body = ast[4];
@@ -257,7 +258,7 @@
                     }
 
                     var delayStmt = { type: "delay", stmts: [] };
-            
+
                     var setup = ast[1];
                     if (setup) {
                         delayStmt.stmts.push({ type: "raw", stmt: setup });
@@ -265,12 +266,12 @@
 
                     var loopStmt = { type: "loop", bodyFirst: false, bodyStmt: { type: "delay", stmts: bodyStmts } };
                     delayStmt.stmts.push(loopStmt);
-                    
+
                     var condition = ast[2];
                     if (condition) {
                         loopStmt.condition = condition;
                     }
-                    
+
                     var update = ast[3];
                     if (update) {
                         loopStmt.update = update;
@@ -279,17 +280,17 @@
                     return delayStmt;
                 },
 
-                "for-in": function (ast) {
+                "for-in": function(ast) {
 
                     var body = ast[4];
-                    
+
                     var bodyStmts = [];
                     this._visitBody(body, bodyStmts);
 
                     if (this._noBinding(bodyStmts)) {
                         return { type: "raw", stmt: ast };
                     }
-                
+
                     var id = (__jscex__tempVarSeed++);
                     var keysVar = "$$_keys_$$_" + id;
                     var indexVar = "$$_index_$$_" + id;
@@ -314,7 +315,7 @@
                     keysAst[3] = ast[3]; // replace the "obj" with real AST.
                     delayStmt.stmts.push({ type : "raw", stmt: keysAst});
                     */
-                    
+
                     // var index = 0;
                     delayStmt.stmts.push({
                         type: "raw",
@@ -354,7 +355,7 @@
                     return delayStmt;
                 },
 
-                "while": function (ast) {
+                "while": function(ast) {
 
                     var bodyStmts = [];
                     var body = ast[2];
@@ -372,7 +373,7 @@
                     return loopStmt;
                 },
 
-                "do": function (ast) {
+                "do": function(ast) {
 
                     var bodyStmts = [];
                     var body = ast[2];
@@ -390,13 +391,13 @@
                     return loopStmt;
                 },
 
-                "switch": function (ast) {
+                "switch": function(ast) {
                     var noBinding = true;
 
                     var switchStmt = { type: "switch", item: ast[1], caseStmts: [] };
 
                     var cases = ast[2];
-                    for (var i = 0; i < cases.length; i++) {                    
+                    for (var i = 0; i < cases.length; i++) {
                         var caseStmt = { item: cases[i][0], stmts: [] };
                         switchStmt.caseStmts.push(caseStmt);
 
@@ -412,7 +413,7 @@
                     }
                 },
 
-                "if": function (ast) {
+                "if": function(ast) {
 
                     var noBinding = true;
 
@@ -436,13 +437,13 @@
                             break;
                         }
                     }
-        
+
                     var elsePart = currAst[3];
                     if (elsePart) {
                         ifStmt.elseStmts = [];
 
                         this._visitBody(elsePart, ifStmt.elseStmts);
-                        
+
                         noBinding = noBinding && this._noBinding(ifStmt.elseStmts);
                     }
 
@@ -453,7 +454,7 @@
                     }
                 },
 
-                "try": function (ast, stmts) {
+                "try": function(ast, stmts) {
 
                     var bodyStmts = [];
                     var bodyStatements = ast[1];
@@ -462,7 +463,7 @@
                     var noBinding = this._noBinding(bodyStmts)
 
                     var tryStmt = { type: "try", bodyStmt: { type: "delay", stmts: bodyStmts } };
-                    
+
                     var catchClause = ast[2];
                     if (catchClause) {
                         var exVar = catchClause[0];
@@ -501,17 +502,17 @@
             this._builderVar = "$$_builder_$$_" + (__jscex__tempVarSeed++);
         }
         CodeGenerator.prototype = {
-            _write: function (s) {
+            _write: function(s) {
                 this._buffer.push(s);
                 return this;
             },
 
-            _writeLine: function (s) {
+            _writeLine: function(s) {
                 this._write(s)._write("\n");
                 return this;
             },
 
-            _writeIndents: function () {
+            _writeIndents: function() {
                 for (var i = 0; i < this._indent; i++) {
                     this._write(" ");
                 }
@@ -522,7 +523,7 @@
                 return this;
             },
 
-            generate: function (params, jscexAst) {
+            generate: function(params, jscexAst) {
                 this._buffer = [];
 
                 this._writeLine("(function (" + params.join(", ") + ") {");
@@ -535,7 +536,7 @@
                     ._writeLine("return " + this._builderVar + ".Start(this,");
                 this._indentLevel++;
 
-                this._pos = { };
+                this._pos = {};
 
                 this._writeIndents()
                     ._visitJscex(jscexAst)
@@ -552,12 +553,12 @@
                 return this._buffer.join("");
             },
 
-            _visitJscex: function (ast) {
+            _visitJscex: function(ast) {
                 this._jscexVisitors[ast.type].call(this, ast);
                 return this;
             },
 
-            _visitRaw: function (ast) {
+            _visitRaw: function(ast) {
                 var type = ast[0];
 
                 function throwUnsupportedError() {
@@ -575,7 +576,7 @@
                 return this;
             },
 
-            _visitJscexStatements: function (statements) {
+            _visitJscexStatements: function(statements) {
                 for (var i = 0; i < statements.length; i++) {
                     var stmt = statements[i];
 
@@ -591,7 +592,7 @@
                 }
             },
 
-            _visitRawStatements: function (statements) {
+            _visitRawStatements: function(statements) {
                 for (var i = 0; i < statements.length; i++) {
                     var s = statements[i];
 
@@ -608,7 +609,7 @@
                 }
             },
 
-            _visitRawBody: function (body) {
+            _visitRawBody: function(body) {
                 if (body[0] == "block") {
                     this._visitRaw(body);
                 } else {
@@ -623,11 +624,11 @@
                 return this;
             },
 
-            _visitRawFunction: function (ast) {
+            _visitRawFunction: function(ast) {
                 var funcName = ast[1] || "";
                 var args = ast[2];
                 var statements = ast[3];
-                
+
                 this._writeLine("function " + funcName + "(" + args.join(", ") + ") {")
                 this._indentLevel++;
 
@@ -644,7 +645,7 @@
             },
 
             _jscexVisitors: {
-                "delay": function (ast) {
+                "delay": function(ast) {
                     if (ast.stmts.length == 1) {
                         var subStmt = ast.stmts[0];
                         switch (subStmt.type) {
@@ -675,7 +676,7 @@
                         ._write("})");
                 },
 
-                "combine": function (ast) {
+                "combine": function(ast) {
                     this._writeLine(this._builderVar + ".Combine(");
                     this._indentLevel++;
 
@@ -689,7 +690,7 @@
                         ._write(")");
                 },
 
-                "loop": function (ast) {
+                "loop": function(ast) {
                     this._writeLine(this._builderVar + ".Loop(");
                     this._indentLevel++;
 
@@ -734,11 +735,11 @@
                         ._write(")");
                 },
 
-                "raw": function (ast) {
+                "raw": function(ast) {
                     this._visitRaw(ast.stmt);
                 },
 
-                "bind": function (ast) {
+                "bind": function(ast) {
                     var info = ast.info;
                     this._write(this._builderVar + ".Bind(")._visitRaw(info.expression)._writeLine(", function (" + info.argName + ") {");
                     this._indentLevel++;
@@ -760,11 +761,11 @@
                         ._write("})");
                 },
 
-                "if": function (ast) {
+                "if": function(ast) {
 
                     for (var i = 0; i < ast.conditionStmts.length; i++) {
                         var stmt = ast.conditionStmts[i];
-                        
+
                         this._write("if (")._visitRaw(stmt.cond)._writeLine(") {");
                         this._indentLevel++;
 
@@ -791,7 +792,7 @@
                         ._write("}");
                 },
 
-                "switch": function (ast) {
+                "switch": function(ast) {
                     this._write("switch (")._visitRaw(ast.item)._writeLine(") {");
                     this._indentLevel++;
 
@@ -814,7 +815,7 @@
                         ._write("}");
                 },
 
-                "try": function (ast) {
+                "try": function(ast) {
                     this._writeLine(this._builderVar + ".Try(");
                     this._indentLevel++;
 
@@ -849,23 +850,23 @@
                         ._write(")");
                 },
 
-                "normal": function (ast) {
+                "normal": function(ast) {
                     this._write(this._builderVar + ".Normal()");
                 },
 
-                "throw": function (ast) {
+                "throw": function(ast) {
                     this._write(this._builderVar + ".Throw(")._visitRaw(ast.stmt[1])._write(")");
                 },
 
-                "break": function (ast) {
+                "break": function(ast) {
                     this._write(this._builderVar + ".Break()");
                 },
 
-                "continue": function (ast) {
+                "continue": function(ast) {
                     this._write(this._builderVar + ".Continue()");
                 },
 
-                "return": function (ast) {
+                "return": function(ast) {
                     this._write(this._builderVar + ".Return(");
                     if (ast.stmt[1]) this._visitRaw(ast.stmt[1]);
                     this._write(")");
@@ -873,7 +874,7 @@
             },
 
             _rawVisitors: {
-                "var": function (ast) {
+                "var": function(ast) {
                     this._write("var ");
 
                     var items = ast[1];
@@ -888,15 +889,17 @@
                     this._write(";");
                 },
 
-                "seq": function (ast) {
+                "seq": function(ast) {
                     for (var i = 1; i < ast.length; i++) {
                         this._visitRaw(ast[i]);
-                        if (i < ast.length - 1) this._write(", "); 
+                        if (i < ast.length - 1) this._write(", ");
                     }
                 },
 
-                "binary": function (ast) {
-                    var op = ast[1], left = ast[2], right = ast[3];
+                "binary": function(ast) {
+                    var op = ast[1],
+                        left = ast[2],
+                        right = ast[3];
 
                     function needBracket(item) {
                         var type = item[0];
@@ -918,8 +921,9 @@
                     }
                 },
 
-                "sub": function (ast) {
-                    var prop = ast[1], index = ast[2];
+                "sub": function(ast) {
+                    var prop = ast[1],
+                        index = ast[2];
 
                     function needBracket() {
                         return !(prop[0] == "name")
@@ -932,13 +936,13 @@
                     }
                 },
 
-                "unary-postfix": function (ast) {
+                "unary-postfix": function(ast) {
                     var op = ast[1];
                     var item = ast[2];
                     this._visitRaw(item)._write(op);
                 },
 
-                "unary-prefix": function (ast) {
+                "unary-prefix": function(ast) {
                     var op = ast[1];
                     var item = ast[2];
                     this._write(op);
@@ -949,7 +953,7 @@
                     }
                 },
 
-                "assign": function (ast) {
+                "assign": function(ast) {
                     var op = ast[1];
                     var name = ast[2];
                     var value = ast[3];
@@ -963,11 +967,11 @@
                     this._visitRaw(value);
                 },
 
-                "stat": function (ast) {
+                "stat": function(ast) {
                     this._visitRaw(ast[1])._write(";");
                 },
 
-                "dot": function (ast) {
+                "dot": function(ast) {
                     function needBracket() {
                         var leftOp = ast[1][0];
                         return !(leftOp == "dot" || leftOp == "name");
@@ -980,7 +984,7 @@
                     }
                 },
 
-                "new": function (ast) {
+                "new": function(ast) {
                     var ctor = ast[1];
 
                     this._write("new ")._visitRaw(ctor)._write("(");
@@ -994,8 +998,8 @@
                     this._write(")");
                 },
 
-                "call": function (ast) {
-                
+                "call": function(ast) {
+
                     if (_isJscexPattern(ast)) {
                         var indent = this._indent + this._indentLevel * 4;
                         var newCode = _compileJscexPattern(ast, indent);
@@ -1024,36 +1028,36 @@
                     }
                 },
 
-                "name": function (ast) {
+                "name": function(ast) {
                     this._write(ast[1]);
                 },
 
-                "object": function (ast) {
+                "object": function(ast) {
                     var items = ast[1];
                     if (items.length <= 0) {
                         this._write("{ }");
                     } else {
                         this._writeLine("{");
                         this._indentLevel++;
-                        
+
                         for (var i = 0; i < items.length; i++) {
                             this._writeIndents()
                                 ._write(stringify(items[i][0]) + ": ")
                                 ._visitRaw(items[i][1]);
-                            
+
                             if (i < items.length - 1) {
                                 this._writeLine(",");
                             } else {
                                 this._writeLine("");
                             }
                         }
-                        
+
                         this._indentLevel--;
                         this._writeIndents()._write("}");
                     }
                 },
 
-                "array": function (ast) {
+                "array": function(ast) {
                     this._write("[");
 
                     var items = ast[1];
@@ -1065,27 +1069,27 @@
                     this._write("]");
                 },
 
-                "num": function (ast) {
+                "num": function(ast) {
                     this._write(ast[1]);
                 },
 
-                "regexp": function (ast) {
+                "regexp": function(ast) {
                     this._write("/" + ast[1] + "/" + ast[2]);
                 },
 
-                "string": function (ast) {
+                "string": function(ast) {
                     this._write(stringify(ast[1]));
                 },
 
-                "function": function (ast) {
+                "function": function(ast) {
                     this._visitRawFunction(ast);
                 },
 
-                "defun": function (ast) {
+                "defun": function(ast) {
                     this._visitRawFunction(ast);
                 },
 
-                "return": function (ast) {
+                "return": function(ast) {
                     if (this._pos.inFunction) {
                         this._write("return");
                         var value = ast[1];
@@ -1095,8 +1099,8 @@
                         this._write("return ")._visitJscex({ type: "return", stmt: ast })._write(";");
                     }
                 },
-                
-                "for": function (ast) {
+
+                "for": function(ast) {
                     this._write("for (");
 
                     var setup = ast[1];
@@ -1128,7 +1132,7 @@
                     this._pos.inLoop = currInLoop;
                 },
 
-                "for-in": function (ast) {
+                "for-in": function(ast) {
                     this._write("for (");
 
                     var declare = ast[1];
@@ -1137,14 +1141,14 @@
                     } else {
                         this._visitRaw(declare);
                     }
-                    
+
                     this._write(" in ")._visitRaw(ast[3])._write(") ");
 
                     var body = ast[4];
                     this._visitRawBody(body);
                 },
 
-                "block": function (ast) {
+                "block": function(ast) {
                     this._writeLine("{")
                     this._indentLevel++;
 
@@ -1155,7 +1159,7 @@
                         ._write("}");
                 },
 
-                "while": function (ast) {
+                "while": function(ast) {
                     var condition = ast[1];
                     var body = ast[2];
 
@@ -1167,7 +1171,7 @@
                     this._pos.inLoop = currInLoop;
                 },
 
-                "do": function (ast) {
+                "do": function(ast) {
                     var condition = ast[1];
                     var body = ast[2];
 
@@ -1187,7 +1191,7 @@
                     this._write("while (")._visitRaw(condition)._write(");");
                 },
 
-                "if": function (ast) {
+                "if": function(ast) {
                     var condition = ast[1];
                     var thenPart = ast[2];
 
@@ -1210,7 +1214,7 @@
                     }
                 },
 
-                "break": function (ast) {
+                "break": function(ast) {
                     if (this._pos.inLoop || this._pos.inSwitch) {
                         this._write("break;");
                     } else {
@@ -1218,7 +1222,7 @@
                     }
                 },
 
-                "continue": function (ast) {
+                "continue": function(ast) {
                     if (this._pos.inLoop) {
                         this._write("continue;");
                     } else {
@@ -1226,7 +1230,7 @@
                     }
                 },
 
-                "throw": function (ast) {
+                "throw": function(ast) {
                     var pos = this._pos;
                     if (pos.inTry || pos.inFunction) {
                         this._write("throw ")._visitRaw(ast[1])._write(";");
@@ -1235,11 +1239,11 @@
                     }
                 },
 
-                "conditional": function (ast) {
+                "conditional": function(ast) {
                     this._write("(")._visitRaw(ast[1])._write(") ? (")._visitRaw(ast[2])._write(") : (")._visitRaw(ast[3])._write(")");
                 },
 
-                "try": function (ast) {
+                "try": function(ast) {
 
                     this._writeLine("try {");
                     this._indentLevel++;
@@ -1271,13 +1275,13 @@
 
                         this._visitRawStatements(finallyStatements);
                         this._indentLevel--;
-                    }                
+                    }
 
                     this._writeIndents()
                         ._write("}");
                 },
 
-                "switch": function (ast) {
+                "switch": function(ast) {
                     this._write("switch (")._visitRaw(ast[1])._writeLine(") {");
                     this._indentLevel++;
 
@@ -1311,7 +1315,7 @@
 
         function _isJscexPattern(ast) {
             if (ast[0] != "call") return false;
-            
+
             var evalName = ast[1];
             if (evalName[0] != "name" || evalName[1] != "eval") return false;
 
@@ -1332,7 +1336,7 @@
 
             return true;
         }
-        
+
         function _compileJscexPattern(ast, indent) {
 
             var builderName = ast[2][0][2][0][1];
@@ -1347,7 +1351,7 @@
 
             return newCode;
         }
-        
+
         function compile(builderName, func) {
 
             var funcCode = func.toString();
@@ -1359,34 +1363,34 @@
             var newCode = _compileJscexPattern(evalAst, 0);
 
             root.logger.debug(funcCode + "\n\n>>>\n\n" + newCode);
-            
+
             return codeGenerator(newCode);
         };
 
         root.compile = compile;
-        
+
         root.modules["jit"] = true;
     }
-    
+
     var isCommonJS = (typeof require !== "undefined" && typeof module !== "undefined" && module.exports);
     var isAmd = (typeof define !== "undefined" && define.amd);
-    
+
     if (isCommonJS) {
-        module.exports.init = function (root) {
+        module.exports.init = function(root) {
             if (!root.modules["parser"]) {
                 require("./jscex-parser").init(root);
             };
-            
+
             init(root);
         }
     } else if (isAmd) {
-        define("jscex-jit", ["jscex-parser"], function (parser) {
+        define("jscex-jit", ["jscex-parser"], function(parser) {
             return {
-                init: function (root) {
+                init: function(root) {
                     if (!root.modules["parser"]) {
                         parser.init(root);
                     }
-                    
+
                     init(root);
                 }
             };
@@ -1395,7 +1399,7 @@
         if (typeof Jscex === "undefined") {
             throw new Error('Missing root object, please load "jscex" module first.');
         }
-        
+
         if (!Jscex.modules["parser"]) {
             throw new Error('Missing essential components, please initialize "parser" module first.');
         }

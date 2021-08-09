@@ -1,45 +1,83 @@
 body {
-	background: rgb(255, 255, 238); margin: 0px; padding: 0px; color: rgb(35, 31, 32); overflow: auto; font-family: "Î¢ÈíÑÅºÚ","ËÎÌå",sans-serif; font-size: 14px;
+    background: rgb(255, 255, 238);
+    margin: 0px;
+    padding: 0px;
+    color: rgb(35, 31, 32);
+    overflow: auto;
+    font-family: "Î¢ï¿½ï¿½ï¿½Åºï¿½", "ï¿½ï¿½ï¿½ï¿½", sans-serif;
+    font-size: 14px;
 }
+
 a {
-	color: rgb(0, 0, 0); font-size: 14px;
+    color: rgb(0, 0, 0);
+    font-size: 14px;
 }
+
 #main {
-	width: 100%;
+    width: 100%;
 }
+
 #wrap {
-	margin: 10px auto 0px; width: 1100px; height: 680px; position: relative;
+    margin: 10px auto 0px;
+    width: 1100px;
+    height: 680px;
+    position: relative;
 }
+
 #text {
-	left: 60px; top: 80px; width: 400px; height: 425px; position: absolute;
+    left: 60px;
+    top: 80px;
+    width: 400px;
+    height: 425px;
+    position: absolute;
 }
+
 #code {
-	font-size: 16px; display: none;
+    font-size: 16px;
+    display: none;
 }
+
 #clock-box {
-	left: 60px; top: 550px; font-size: 28px; display: none; position: absolute;
+    left: 60px;
+    top: 550px;
+    font-size: 28px;
+    display: none;
+    position: absolute;
 }
+
 #clock-box a {
-	font-size: 28px; text-decoration: none;
+    font-size: 28px;
+    text-decoration: none;
 }
+
 #clock {
-	margin-left: 48px;
+    margin-left: 48px;
 }
+
 #clock .digit {
-	font-size: 64px;
+    font-size: 64px;
 }
+
 #canvas {
-	margin: 0px auto; width: 1100px; height: 680px;
+    margin: 0px auto;
+    width: 1100px;
+    height: 680px;
 }
+
 #error {
-	margin: 60px auto 0px; text-align: center; display: none;
+    margin: 60px auto 0px;
+    text-align: center;
+    display: none;
 }
+
 .hand {
-	cursor: pointer;
+    cursor: pointer;
 }
+
 .say {
-	margin-left: 5px;
+    margin-left: 5px;
 }
+
 .space {
-	margin-right: 150px;
+    margin-right: 150px;
 }
