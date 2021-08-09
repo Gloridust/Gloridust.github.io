@@ -13,7 +13,7 @@ body {
     background: url(/static/css/img/background.jpg) no-repeat center center;
     background-size: cover;
     background-attachment: fixed;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: #CCCCCC;
 }
 
 body,
@@ -68,6 +68,7 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
+    rgba(0, 0, 0, 0.35)
 }
 
 .footer {
