@@ -10,7 +10,7 @@
 }
 
 body {
-    background: url(/static/css/img/background.webp) no-repeat center center;
+    background: url(/static/css/img/background/desktop.webp) no-repeat center center;
     background-size: cover;
     background-attachment: fixed;
     background-color: #CCCCCC;
