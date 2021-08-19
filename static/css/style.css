@@ -91,9 +91,10 @@ main {
 
 .logo-left {
     position: relative;
-    width: 140px;
-    height: 140px;
+    width: 150px;
+    height: 150px;
     cursor: pointer;
+    border-radius: 35px 35px 35px 35px;
 }
 
 .logo-right {
@@ -110,8 +111,8 @@ main {
 /* 搜索框 start */
 
 .search-section {
-    margin-top: 14px;
-    margin-bottom: 40px;
+    margin-top: 21px;
+    margin-bottom: 60px;
 }
 
 .search-section {
