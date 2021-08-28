@@ -94,7 +94,7 @@ main {
     width: 145px;
     height: 145px;
     cursor: pointer;
-    border-radius: 100px;
+    border-radius: 35px 35px 35px 35px;
 }
 
 .logo-right {
