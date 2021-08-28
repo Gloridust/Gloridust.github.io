@@ -102,6 +102,9 @@ main {
     font-size: 36px;
     color: rgba(0, 39, 102, 1);
     font-family: SourceHanSansSC-regular;
+    border-radius: 35px 35px 35px 35px;
+    background-color: rgba(217, 217, 217, 0.96);
+    border-radius: 35px 35px 35px 35px;
 }
 
 
